@@ -1,0 +1,110 @@
+/* Общие стили */
+
+.contacts-page {
+  font-family: "Mont", sans-serif;
+  background-color: #f3e8df;
+  color: #58529c;
+  min-height: 100vh;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Заголовок страницы */
+.contacts-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.contacts-header h1 {
+  font-size: 32px;
+  color: #58529c;
+  margin-bottom: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.contacts-header p {
+  font-size: 16px;
+  color: #7c729d;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Контейнер с контактом и картой */
+.contacts-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* Карта */
+.map-section {
+  flex: 1 1 400px;
+}
+
+.map-image {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Контактная информация */
+.info-section {
+  flex: 1 1 400px;
+  max-width: 500px;
+}
+
+.info-text {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #58529c;
+}
+
+.info-section a {
+  text-decoration: none;
+  color: #58529c;
+  font-weight: 600;
+}
+
+.info-section a:hover {
+  text-decoration: underline;
+}
+
+/* Часы работы */
+.working-hours {
+  background-color: #58529c;
+  color: #f3e8df;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Социальные сети */
+.contacts-footer {
+  margin-top: 30px;
+}
+
+.social-icons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.social-icons a {
+  font-size: 24px;
+  color: #58529c;
+  transition: transform 0.3s, color 0.3s;
+}
+
+.social-icons a:hover {
+  transform: scale(1.2);
+  color: #3e3570;
+}

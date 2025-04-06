@@ -1,0 +1,76 @@
+.header {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: #f3e8df;
+    padding: 50px 50px;
+  height: 50px;
+
+  }
+  
+  .header__row {
+    display: flex;
+    column-gap: 30px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .logo {
+    display: flex;
+  }
+  
+  .nav ul {
+    display: flex;
+    gap: 45px;
+    align-items: center;
+    font-family: Mont;
+    font-weight: 600;
+    font-size: 25px;
+    line-height: 1;
+    letter-spacing: 9%;
+    text-transform: uppercase;
+  }
+  
+  .nav-link {
+    text-decoration: none;
+    color: #58529c;
+    transition: color 0.3s;
+  }
+  
+  .nav-link:hover {
+    color: #58529c;
+  }
+  
+  /* Кнопки входа и регистрации */
+  .auth-buttons {
+    display: flex;
+    gap: 45px;
+  }
+  
+  .button {
+    padding: 10px 39px;
+    border: 3px solid #58529c;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .login-button {
+    background: transparent;
+    color: #58529c;
+  }
+  
+  .login-button:hover {
+    background: #58529c;
+    color: #f3e8df;
+  }
+  
+  .register-button {
+    background: #58529c;
+    color: #f3e8df;
+  }
+  
+  .register-button:hover {
+    background: #58529c;
+  }

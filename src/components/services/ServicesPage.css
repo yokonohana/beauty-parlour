@@ -1,0 +1,87 @@
+/* Контейнер всей страницы */
+.services-page {
+    background: linear-gradient(to bottom, #58529c, #f3e8df);
+    color: #f3e8df;
+    padding: 50px 20px;
+    min-height: 100vh;
+    font-family: "Mont", sans-serif;
+  }
+  
+  /* Заголовок страницы */
+  .services-header {
+    text-align: center;
+    font-size: 36px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  
+  .services-subheader {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 40px;
+  }
+  
+  /* Контейнер списка услуг */
+  .services-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  /* Карточка услуги */
+  .service-card {
+    background-color: #f3e8df;
+    border-radius: 12px;
+    display: flex;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Изображение услуги */
+  .service-card .service-image {
+    width: 250px;
+    height: auto;
+    border-radius: 12px 0 0 12px;
+    object-fit: cover;
+  }
+  
+  /* Текстовый блок */
+  .service-text {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .service-title {
+    font-size: 22px;
+    color: #58529c;
+    margin-bottom: 10px;
+  }
+  
+  .service-description {
+    font-size: 14px;
+    color: #58529c;
+    margin-bottom: 20px;
+  }
+  
+  /* Кнопка "Подробнее" */
+  .service-button {
+    border: 2px solid #58529c;
+    background-color: transparent;
+    color: #58529c;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    align-self: flex-start;
+  }
+  
+  .service-button:hover {
+    background-color: #58529c;
+    color: #f3e8df;
+  }

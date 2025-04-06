@@ -1,0 +1,24 @@
+.promo {
+    padding:  0 60px 0 0;
+}
+
+.promo__content {
+display: flex;
+column-gap: 62px;
+
+}
+
+.promo__img {
+flex: 1.5 0.5 1300px;
+}
+
+.promo__text {
+padding-top: 200px;
+font-family: Mont;
+font-weight: 600;
+font-size: 32px;
+line-height: 1;
+letter-spacing: 9%;
+text-align: center;
+color: #58529c;
+}
