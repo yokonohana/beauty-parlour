@@ -36,12 +36,11 @@ async function startServer() {
     res.status(200).set({ 'Content-Type': 'text/html' }).send(html);
   });
 
-  // API маршрут
-  app.get('/api/hello', (req, res) => {
+  // API маршруты. Пример
+  app.get('/hello', (req, res) => {
     res.json({ message: 'Привет из Express!' });
   });
 
-  // Запуск сервера
   const port = 3000;
   app.listen(port, () => {
     console.log(`🚀 Сервер запущен на http://localhost:${port}`);
