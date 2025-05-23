@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import '../../styles/auth.css';
 
 export default function Register() {
   const navigate = useNavigate();
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const {
     control,
@@ -19,9 +20,21 @@ export default function Register() {
   });
 
   const onRegister = (data) => {
+    setShowSuccess(true);
     reset();
-    navigate("/auth");
+
+    setTimeout(() => {
+      navigate("/auth");
+    }, 2000);
   };
+
+  if (showSuccess) {
+    return (
+      <div className="container">
+        <div className="success-message">Регистрация прошла успешно!</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">

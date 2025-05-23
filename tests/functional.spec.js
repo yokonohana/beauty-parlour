@@ -39,10 +39,17 @@ test.describe('Интерфейсы взаимодействия', () => {
   test('Проверка корректного отображения и перехода по навигации', async ({ page }) => {
     await page.goto(baseUrl);
 
-    const links = ['Услуги и цены', 'Акции', 'Отзывы', 'Галерея', 'Контакты'];
+    const linkMap = {
+      'Услуги и цены': 'services',
+      'Акции': 'promotions',
+      'Отзывы': 'reviews',
+      'Галерея': 'gallery',
+      'Контакты': 'contacts',
+    };
+
     for (const linkText of links) {
       await page.click(`a.nav-link:has-text("${linkText}")`);
-      await expect(page).toHaveURL(new RegExp(linkText.toLowerCase()));
+      await expect(page).toHaveURL(new RegExp(linkMap[linkText], 'i'));
       await page.goBack();
     }
   });
