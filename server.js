@@ -1,50 +1,44 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
-import path from 'path';
 import { fileURLToPath } from 'url';
+import path from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function startServer() {
+const startServer = async () => {
   const app = express();
 
   const vite = await createViteServer({
-    server: { middlewareMode: true },
-    appType: 'custom',
+    root: __dirname,
+    server: { middlewareMode: 'html' }
   });
 
   app.use(vite.middlewares);
 
-  app.get('/', async (req, res) => {
-    const html = await vite.transformIndexHtml(req.url, `
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>Vite + React</title>
-          <link href="fonts/mont/stylesheet.css" rel="stylesheet" type="text/css" />
-        </head>
-        <body>
-          <div id="root"></div>
-          <script type="module" src="/src/main.jsx"></script>
-        </body>
-      </html>
-    `);
-    res.status(200).set({ 'Content-Type': 'text/html' }).send(html);
+  app.use('*', async (req, res) => {
+    try {
+      const url = req.originalUrl;
+      let template = await vite.transformIndexHtml(url, `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Vite + Express</title></head>
+          <body><div id="root"></div></body>
+        </html>
+      `);
+
+      res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+    } catch (e) {
+      vite.ssrFixStacktrace(e);
+      console.error(e);
+      res.status(500).end(e.message);
+    }
   });
 
-  // API маршруты. Пример
-  app.get('/hello', (req, res) => {
-    res.json({ message: 'Привет из Express!' });
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Сервер запущен на http://localhost:${PORT}`);
   });
-
-  const port = 3000;
-  app.listen(port, () => {
-    console.log(`🚀 Сервер запущен на http://localhost:${port}`);
-  });
-}
+};
 
 startServer();

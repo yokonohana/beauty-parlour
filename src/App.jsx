@@ -1,20 +1,21 @@
-import ContactsPage from "./components/contacts/ContactsPage";
-import Footer from "./components/footer/footer";
-import Header from "./components/header/header";
-import Promo from "./components/promo/promo";
-import ServicesPage from "./components/services/ServicesPage";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Home from './components/finComponents/Home.jsx';
+import Auth from './components/finComponents/Auth.jsx';
+import Registration from './components/finComponents/Registration.jsx';
 
-function App() {
-
+export default function App() {
   return (
-    <div className='App'>
-    <Header />
-    <Promo />
-    <ServicesPage />
-    <ContactsPage />
-    <Footer />
-    </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/appointments" element={<Home />} />
+        <Route path="/reviews" element={<Home />} />
+        <Route path="/gallery" element={<Home />} />
+        <Route path="/promotions" element={<Home />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/registration" element={<Registration />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
-
-export default App;
