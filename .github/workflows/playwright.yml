@@ -22,7 +22,10 @@ jobs:
       - name: Установить зависимости
         run: npm ci
 
-      - name: Запустить сервер на фоне
+      - name: Установить Playwright-браузеры
+        run: npx playwright install --with-deps
+
+      - name: 🚀 Запустить сервер на фоне
         run: |
           npm run dev &
           npx wait-on http://localhost:3000
