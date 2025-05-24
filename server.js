@@ -22,7 +22,7 @@ const startServer = async () => {
       let template = await vite.transformIndexHtml(url, `
         <!DOCTYPE html>
         <html>
-          <head><title>Vite + Express</title></head>
+          <head><title>Салон красоты BLISS</title></head>
           <body><div id="root"></div></body>
         </html>
       `);
