@@ -1,89 +1,132 @@
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import '../../styles/auth.css';
+import Toast from "./Toast"; // путь подстрой под структуру проекта
+import "../../styles/registration.css";
 
 export default function Register() {
   const navigate = useNavigate();
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm({
     defaultValues: {
+      name: "",
+      last_name: "",
+      phone: "",
       email: "",
       password: "",
     },
   });
 
-  const onRegister = (data) => {
-    setShowSuccess(true);
-    reset();
+  const onRegister = async (data) => {
+    try {
+      const response = await fetch("http://localhost:3000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-    setTimeout(() => {
-      navigate("/auth");
-    }, 2000);
+      if (!response.ok) {
+        const text = await response.text();
+        let resData;
+        try {
+          resData = JSON.parse(text);
+        } catch {
+          throw new Error("Ошибка регистрации: пустой или невалидный JSON-ответ");
+        }
+        throw new Error(resData.error || "Ошибка регистрации");
+      }
+
+      setToastMessage("Регистрация прошла успешно!");
+      setTimeout(() => {
+        navigate("/auth");
+      }, 1500);
+    } catch (err) {
+      console.error("Ошибка регистрации:", err.message);
+      setToastMessage(err.message || "Ошибка при регистрации");
+    }
   };
 
-  if (showSuccess) {
-    return (
-      <div className="container">
-        <div className="success-message">Регистрация прошла успешно!</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="container">
-      <h2 className="heading">Регистрация:</h2>
-
-      <label htmlFor="email" className="label">Email:</label>
-      <Controller
-        control={control}
-        name="email"
-        rules={{
-          required: "Поле обязательно для заполнения",
+    <div className="register-page">
+      <div className="container">
+        <h2>Регистрация</h2>
+        {renderInput("Имя", "name", control, errors, { required: true })}
+        {renderInput("Фамилия", "last_name", control, errors, { required: true })}
+        {renderInput("Номер телефона", "phone", control, errors, {
+          required: true,
+          pattern: {
+            value: /^[0-9+()\s-]{7,}$/,
+            message: "Некорректный номер телефона",
+          },
+        })}
+        {renderInput("Электронная почта", "email", control, errors, {
+          required: true,
           pattern: {
             value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
             message: "Неверный формат email",
           },
-        }}
-        render={({ field }) => (
-          <input
-            id="email"
-            type="email"
-            placeholder="example@gmail.com"
-            {...field}
-            className="input"
-          />
-        )}
-      />
-      {errors.email && <p className="error">{errors.email.message}</p>}
+        }, "email")}
+        {renderInput("Пароль", "password", control, errors, {
+          required: true,
+        }, "password")}
 
-      <label htmlFor="password" className="label">Пароль:</label>
-      <Controller
-        control={control}
-        name="password"
-        rules={{ required: "Поле обязательно для заполнения" }}
-        render={({ field }) => (
-          <input
-            id="password"
-            type="password"
-            placeholder="Введите пароль"
-            {...field}
-            className="input"
-          />
-        )}
-      />
-      {errors.password && <p className="error">{errors.password.message}</p>}
-
-      <div className="btn">
-        <button type="button" onClick={() => navigate("/auth")}>Войти</button>
-        <button type="button" onClick={handleSubmit(onRegister)}>Зарегистрироваться</button>
+        <div className="btn">
+          <button type="button" onClick={handleSubmit(onRegister)}>
+            Зарегистрироваться
+          </button>
+        </div>
       </div>
+
+      {toastMessage && (
+        <Toast message={toastMessage} onClose={() => setToastMessage("")} />
+      )}
     </div>
+  );
+}
+
+function renderInput(label, name, control, errors, rules, type = "text") {
+  return (
+    <>
+      <label htmlFor={name} className="label">
+        {label}
+      </label>
+      <div className="input-wrapper">
+        <Controller
+          control={control}
+          name={name}
+          rules={rules}
+          render={({ field }) => (
+            <input
+              id={name}
+              type={type}
+              placeholder={label}
+              {...field}
+              className="input"
+            />
+          )}
+        />
+        {errors[name] && (
+          <span className="input-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="red"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <circle cx="12" cy="16" r="1" />
+            </svg>
+          </span>
+        )}
+      </div>
+    </>
   );
 }

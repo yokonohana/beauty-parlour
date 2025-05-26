@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+/* Фоновая страница */
+.register-page {
+  background-color: #F3E8DF;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 16px;
+}
+
+/* Контейнер */
+.register-page .container {
+  background-color: #2e2d77;
+  border-radius: 16px;
+  padding: 32px 24px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  color: #fff;
+  position: relative;
+}
+
+/* Заголовок */
+.register-page .container h2 {
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+/* Метка */
+.register-page .label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #fff;
+}
+
+/* Инпут */
+.register-page .input-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.register-page .input {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  background-color: #fff;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.register-page .input:focus {
+  outline: 2px solid #a7a3f0;
+}
+
+/* Иконка (например, для показа/скрытия пароля) */
+.register-page .input-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  color: #555;
+}
+
+/* Ошибка */
+.register-page .error {
+  color: #ffbaba;
+  font-size: 14px;
+  margin-top: -8px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+/* Кнопка */
+.register-page .btn {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.register-page .btn button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #6c6c6c, #ffffff);
+  color: #2e2d77;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.register-page .btn button:hover {
+  opacity: 0.9;
+}
+
+/* Ссылка на вход */
+.register-page .bottom-text {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.register-page .bottom-text a {
+  color: #fff;
+  text-decoration: underline;
+  margin-left: 4px;
+  font-weight: 500;
+}

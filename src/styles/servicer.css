@@ -1,0 +1,115 @@
+.services-page {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.services-background {
+  background: linear-gradient(to bottom, #F3E8DF, #58529C);
+  padding-top: 80px;
+  min-height: 100vh;
+}
+
+.services-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.services-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #3a2c6d;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.services-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #d6cde6;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  padding: 10px 0;
+  cursor: pointer;
+  transition: color 0.3s, border-bottom 0.3s;
+  border-bottom: 3px solid transparent;
+}
+
+.tab-button:hover {
+  color: #4d3b84;
+}
+
+.tab-button.active {
+  color: #4d3b84;
+  border-bottom: 3px solid #4d3b84;
+}
+
+.category-description {
+  text-align: center;
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 30px;
+}
+
+.subcategory-block {
+  margin-bottom: 50px;
+}
+
+.subcategory-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #4d3b84;
+}
+
+.services-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.services-table th,
+.services-table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e0d8f0;
+}
+
+.services-table th {
+  background-color: #f2e9fc;
+  color: #4d3b84;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.services-table td .service-name {
+  font-weight: 500;
+  color: #222;
+}
+
+.services-table td {
+  color: #222; /* ← Цены и остальной текст */
+}
+
+.service-desc {
+  font-size: 14px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.service-note {
+  font-size: 13px;
+  color: #666;
+}

@@ -1,0 +1,178 @@
+.page-wrapper {
+  padding: 40px 20px;
+  background: linear-gradient(to bottom, #d3cce3, #a78bfa); /* фон всей страницы */
+  min-height: 100vh;
+  text-align: center;
+}
+
+.review-title {
+  font-size: 2rem;
+  color: #fff;
+  margin-top: 100px; /* добавлено */
+  margin-bottom: 20px;
+}
+
+
+.review-divider {
+  border: none;
+  height: 2px;
+  background-color: #fff;
+  margin-bottom: 30px;
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.carousel-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.review-card {
+  background-color: white;
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  width: 500px;
+  max-width: 90%;
+  text-align: left;
+  z-index: 1;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.review-author {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.review-comment {
+  font-style: italic;
+  color: #444;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+.review-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.carousel-arrow {
+  position: absolute;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: #fff;
+  cursor: pointer;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.carousel-arrow.left {
+  left: 20px;
+}
+
+.carousel-arrow.right {
+  right: 20px;
+}
+
+/* Форма */
+.review-form-container {
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.review-form-title {
+  font-size: 1.8rem;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.review-form {
+  background-color: #4c2882;
+  padding: 30px;
+  border-radius: 16px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  color: white;
+}
+
+.review-form label {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  text-align: left;
+}
+
+.review-form input,
+.review-form textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 6px;
+  border: none;
+  background-color: white;
+  color: black;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.review-form textarea {
+  resize: vertical;
+  height: 80px;
+}
+
+.star-select {
+  display: flex;
+  gap: 4px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.review-button,
+.submit-review-button {
+  background-color: white;
+  color: #4c2882;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+  font-size: 1rem;
+  transition: 0.3s ease;
+}
+
+.review-button:hover,
+.submit-review-button:hover {
+  background-color: #eaeaea;
+}
+
+.error-message {
+  color: #ffdddd;
+  background-color: #aa3333;
+  padding: 8px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.success-message {
+  color: #3c763d;
+  background-color: #dff0d8;
+  padding: 8px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
