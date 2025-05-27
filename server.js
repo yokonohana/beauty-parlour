@@ -241,8 +241,11 @@ const startServer = async () => {
 
   app.use(vite.middlewares);
 
-  // SPA fallback
-  app.use('*', async (req, res) => {
+// SPA fallback
+  app.use(async (req, res, next) => {
+    if (req.originalUrl.startsWith('/api')) {
+      return next();
+    }
     try {
       const url = req.originalUrl;
       const template = await vite.transformIndexHtml(url, `
