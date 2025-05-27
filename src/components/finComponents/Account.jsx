@@ -19,7 +19,7 @@ export default function ContactInfo() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/contacts');
+        const res = await fetch('https://beauty-parlour-production.up.railway.app/api/contacts');
         if (!res.ok) throw new Error(`Ошибка сети: ${res.status}`);
         const data = await res.json();
 

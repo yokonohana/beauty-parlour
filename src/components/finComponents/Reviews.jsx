@@ -15,7 +15,7 @@ export default function ReviewsPage() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/reviews');
+        const res = await fetch('https://beauty-parlour-production.up.railway.app/api/reviews');
         const data = await res.json();
         const approved = data.filter((r) => r.approved);
         const result = approved.length > 0 ? approved : data;

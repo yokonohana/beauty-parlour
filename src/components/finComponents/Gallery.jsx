@@ -18,7 +18,7 @@ export default function Gallery() {
   const fetchImages = async (description) => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/gallery?description=${encodeURIComponent(description)}`);
+      const res = await fetch(`https://beauty-parlour-production.up.railway.app/api/gallery?description=${encodeURIComponent(description)}`);
       const data = await res.json();
       setImages(data);
     } catch (err) {
@@ -36,7 +36,7 @@ export default function Gallery() {
     if (!window.confirm('Удалить фото?')) return;
 
     try {
-      await fetch(`/api/gallery/${id}`, {
+      await fetch(`https://beauty-parlour-production.up.railway.app/api/gallery/${id}`, {
         method: 'DELETE',
       });
       fetchImages(selectedCategory);
