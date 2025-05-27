@@ -14,8 +14,12 @@ const __dirname = path.dirname(__filename);
 const startServer = async () => {
   const app = express();
 
-  // Middleware
-  app.use(cors());
+// Middleware
+  app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }));
   app.use(express.json());
 
   // === Обработка /uploads (PNG, JPG, и пр.) ===
