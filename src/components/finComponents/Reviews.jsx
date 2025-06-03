@@ -3,39 +3,62 @@ import Header from '../header/header';
 import '../../styles/reviews.css';
 
 export default function ReviewsPage() {
-  const [reviews, setReviews] = useState([]);
-  const [current, setCurrent] = useState(0);
-  const [name, setName] = useState('');
-  const [comment, setComment] = useState('');
-  const [rating, setRating] = useState(5);
+  const [allReviews, setAllReviews] = useState([]);
+  const [featured, setFeatured] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [current, setCurrent] = useState(0);
   const formRef = useRef(null);
+
+  const [userName, setUserName] = useState('');
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/reviews');
+        const res = await fetch('http://localhost:3000/api/reviews?status=approved');
+        if (!res.ok) throw new Error(`Сервер вернул ошибку ${res.status}`);
+
         const data = await res.json();
-        const approved = data.filter((r) => r.approved);
-        const result = approved.length > 0 ? approved : data;
-        const shuffled = result.sort(() => Math.random() - 0.5);
-        setReviews(shuffled);
+        const reviewsArray = Array.isArray(data)
+          ? data
+          : data.rows && Array.isArray(data.rows)
+          ? data.rows
+          : [];
+
+        const shuffled = [...reviewsArray].sort(() => Math.random() - 0.5);
+        const five = shuffled.slice(0, 5);
+
+        setAllReviews(reviewsArray);
+        setFeatured(five);
+        setCurrent(0);
       } catch (err) {
-        console.error('Ошибка загрузки отзывов', err);
+        console.error('Ошибка загрузки отзывов:', err);
+        setError('Не удалось загрузить отзывы. Попробуйте позже.');
       }
     };
 
     fetchReviews();
   }, []);
 
-  const next = () => setCurrent((prev) => (prev + 1) % reviews.length);
-  const prev = () => setCurrent((prev) => (prev - 1 + reviews.length) % reviews.length);
-  const handleLeaveReviewClick = () => formRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const carouselNext = () => {
+    if (featured.length === 0) return;
+    setCurrent(prev => (prev + 1) % featured.length);
+  };
 
-  const handleSubmit = async (e) => {
+  const carouselPrev = () => {
+    if (featured.length === 0) return;
+    setCurrent(prev => (prev - 1 + featured.length) % featured.length);
+  };
+
+  const handleLeaveReviewClick = () => {
+    formRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleSubmit = async e => {
     e.preventDefault();
-    if (!name.trim() || !comment.trim()) {
+    if (!userName.trim() || !comment.trim()) {
       setError('Пожалуйста, введите имя и комментарий.');
       return;
     }
@@ -44,22 +67,26 @@ export default function ReviewsPage() {
       const res = await fetch('http://localhost:3000/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, comment, rating }),
+        body: JSON.stringify({
+          name: userName.trim(),
+          rating: Number(rating),
+          comment: comment.trim(),
+        }),
       });
 
       if (res.ok) {
         setSuccess(true);
-        setName('');
-        setComment('');
-        setRating(5);
         setError('');
+        setUserName('');
+        setRating(5);
+        setComment('');
         setTimeout(() => setSuccess(false), 5000);
       } else {
-        setError('Ошибка при отправке отзыва.');
+        setError('Ошибка при отправке отзыва. Попробуйте позже.');
       }
     } catch (err) {
-      console.error(err);
-      setError('Сервер недоступен.');
+      console.error('Ошибка при отправке отзыва:', err);
+      setError('Сервер недоступен. Попробуйте позже.');
     }
   };
 
@@ -82,24 +109,41 @@ export default function ReviewsPage() {
         <h2 className="review-title">Отзывы наших клиентов</h2>
         <hr className="review-divider" />
 
-        {reviews.length > 0 ? (
+        {error && <p className="error-text">{error}</p>}
+
+        {featured.length > 0 ? (
           <div className="carousel-wrapper">
-            <button className="carousel-arrow left" onClick={prev}>&lt;</button>
+            <button className="carousel-arrow left" onClick={carouselPrev}>
+              &lt;
+            </button>
+
             <div className="review-card">
               <div className="review-header">
-                <p className="review-author">{reviews[current]?.name || 'Аноним'}</p>
+                <p className="review-author">
+                  {featured[current].name
+                    ? `Пользователь ${featured[current].name}`
+                    : 'Анонимный пользователь'}
+                </p>
                 <div className="review-stars">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Star key={i} filled={i <= (reviews[current]?.rating || 0)} />
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <Star
+                      key={i}
+                      filled={i <= (featured[current].rating || 0)}
+                    />
                   ))}
                 </div>
               </div>
-              <p className="review-comment">“{reviews[current]?.comment || 'Без комментария'}”</p>
+              <p className="review-comment">
+                “{featured[current].comment || 'Без комментария'}”
+              </p>
             </div>
-            <button className="carousel-arrow right" onClick={next}>&gt;</button>
+
+            <button className="carousel-arrow right" onClick={carouselNext}>
+              &gt;
+            </button>
           </div>
         ) : (
-          <p className="no-reviews">Пока нет отзывов.</p>
+          !error && <p className="no-reviews">Пока нет отзывов.</p>
         )}
 
         <div className="leave-review-wrapper">
@@ -110,29 +154,49 @@ export default function ReviewsPage() {
 
         <div ref={formRef} className="review-form-container">
           <form onSubmit={handleSubmit} className="review-form">
-            <input
-              type="text"
-              placeholder="Ваше имя"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-            <textarea
-              placeholder="Ваш отзыв"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              required
-            />
-            <div className="rating-stars">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <span key={i} onClick={() => setRating(i)}>
-                  <Star filled={i <= rating} />
-                </span>
-              ))}
+            <div className="input-row">
+              <label className="label-inline">
+                Ваше имя:
+                <input
+                  type="text"
+                  placeholder="Ваше имя"
+                  value={userName}
+                  onChange={e => setUserName(e.target.value)}
+                  required
+                />
+              </label>
+              <label className="label-inline">
+                Рейтинг:
+                <div className="rating-stars-inline">
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <span
+                      key={i}
+                      onClick={() => setRating(i)}
+                      className="star-clickable"
+                    >
+                      <Star filled={i <= rating} />
+                    </span>
+                  ))}
+                </div>
+              </label>
             </div>
-            <button type="submit" className="submit-review">Отправить</button>
-            {error && <p className="error">{error}</p>}
-            {success && <p className="success">Спасибо за ваш отзыв!</p>}
+
+            <label className="label-block">
+              Комментарий:
+              <textarea
+                placeholder="Ваш отзыв"
+                value={comment}
+                onChange={e => setComment(e.target.value)}
+                required
+              />
+            </label>
+
+            <button type="submit" className="submit-review">
+              Отправить отзыв
+            </button>
+            {success && (
+              <p className="success-text">Спасибо! Ваш отзыв успешно отправлен.</p>
+            )}
           </form>
         </div>
       </div>

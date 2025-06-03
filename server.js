@@ -13,18 +13,14 @@ const __dirname = path.dirname(__filename);
 
 const startServer = async () => {
   const app = express();
-
-  // Middleware
   app.use(cors());
   app.use(express.json());
 
-  // === Обработка /uploads (PNG, JPG, и пр.) ===
+  // === Обработка /uploads (PNG, JPG и пр.) ===
   const uploadsDir = path.join(__dirname, 'uploads');
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir);
   }
-
-  // Отдача статики (включая .png)
   app.use('/uploads', express.static(uploadsDir));
 
   // === API маршруты ===
@@ -32,20 +28,20 @@ const startServer = async () => {
   // Регистрация
   app.post('/api/auth/register', async (req, res) => {
     const { email, password, name, last_name, phone } = req.body;
-
     if (!email || !password || !name || !last_name || !phone) {
       return res.status(400).json({ error: 'Все поля обязательны' });
     }
 
     try {
-      const existingUser = await db.query('SELECT id FROM users WHERE email = $1', [email]);
-
+      const existingUser = await db.query(
+        'SELECT id FROM users WHERE email = $1',
+        [email]
+      );
       if (existingUser.rows.length > 0) {
         return res.status(400).json({ error: 'Email уже зарегистрирован' });
       }
 
       const passwordHash = await bcrypt.hash(password, 10);
-
       const result = await db.query(
         `INSERT INTO users (name, last_name, email, password_hash, phone)
          VALUES ($1, $2, $3, $4, $5) RETURNING id`,
@@ -62,21 +58,21 @@ const startServer = async () => {
   // Вход
   app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
-
     if (!email || !password) {
       return res.status(400).json({ error: 'Email и пароль обязательны' });
     }
 
     try {
-      const result = await db.query('SELECT id, password_hash FROM users WHERE email = $1', [email]);
-
+      const result = await db.query(
+        'SELECT id, password_hash FROM users WHERE email = $1',
+        [email]
+      );
       if (result.rows.length === 0) {
         return res.status(401).json({ error: 'Пользователь не найден' });
       }
 
       const user = result.rows[0];
       const isMatch = await bcrypt.compare(password, user.password_hash);
-
       if (!isMatch) {
         return res.status(401).json({ error: 'Неверный пароль' });
       }
@@ -88,20 +84,17 @@ const startServer = async () => {
     }
   });
 
-  // Получение контактной информации
+  // Получение контактной информации (пример на жёстко захардкоженном userId = 1)
   app.get('/api/contacts', async (req, res) => {
     const userId = 1;
-
     try {
       const result = await db.query(
-        `SELECT name, last_name, email, phone FROM users WHERE id = $1`,
+        'SELECT name, last_name, email, phone FROM users WHERE id = $1',
         [userId]
       );
-
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Пользователь не найден' });
       }
-
       res.status(200).json(result.rows[0]);
     } catch (err) {
       console.error('Ошибка при получении данных:', err);
@@ -156,21 +149,19 @@ const startServer = async () => {
     }
   });
 
-  // Сохранение отзыва (может оставить любой пользователь)
+  // Сохранение нового отзыва
   app.post('/api/reviews', async (req, res) => {
     const { name, rating, comment } = req.body;
-
     if (!name || !rating || !comment) {
       return res.status(400).json({ error: 'Все поля обязательны' });
     }
-
     try {
+      // В таблице reviews у нас теперь есть только поля: id, name, rating, comment, status, created_at
       await db.query(
-        `INSERT INTO reviews (name, rating, comment, created_at)
-        VALUES ($1, $2, $3, NOW())`,
+        `INSERT INTO reviews (name, rating, comment, status, created_at)
+         VALUES ($1, $2, $3, 'approved', NOW())`,
         [name, rating, comment]
       );
-
       res.status(201).json({ message: 'Отзыв успешно добавлен' });
     } catch (err) {
       console.error('Ошибка при сохранении отзыва:', err);
@@ -178,18 +169,16 @@ const startServer = async () => {
     }
   });
 
-
-  // Получение отзывов
+  // Получение 10 случайных «approved» отзывов (исправили JOIN)
   app.get('/api/reviews', async (req, res) => {
     try {
       const result = await db.query(`
-        SELECT r.id, u.name, r.rating, r.comment, r.created_at
-        FROM reviews r
-        JOIN users u ON r.user_id = u.id
+        SELECT id, name, rating, comment, created_at
+        FROM reviews
+        WHERE status = 'approved'
         ORDER BY RANDOM()
         LIMIT 10
       `);
-
       res.json(result.rows);
     } catch (err) {
       console.error('Ошибка при получении отзывов:', err);
@@ -230,15 +219,14 @@ const startServer = async () => {
     }
   });
 
-  // Загрузка изображений
-  app.use('/api', uploadRoute); // включает /api/upload
+  // Загрузка изображений (uploadRoute сам обрабатывает /api/upload)
+  app.use('/api', uploadRoute);
 
   // Vite middleware
   const vite = await createViteServer({
     root: __dirname,
     server: { middlewareMode: true },
   });
-
   app.use(vite.middlewares);
 
   // SPA fallback
@@ -252,7 +240,6 @@ const startServer = async () => {
           <body><div id="root"></div></body>
         </html>
       `);
-
       res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
     } catch (e) {
       vite.ssrFixStacktrace(e);

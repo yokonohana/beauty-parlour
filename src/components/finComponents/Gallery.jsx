@@ -8,51 +8,60 @@ const categories = [
   'Ресницы и брови',
 ];
 
-const currentUserRole = 'admin'; // заменить в будущем авторизацией
+const folderToCategory = {
+  manicure: 'Маникюр и педикюр',
+  hairstyles: 'Стрижки и укладки',
+  eyelashes: 'Ресницы и брови',
+};
 
 export default function Gallery() {
   const [images, setImages] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
-  const [loading, setLoading] = useState(false);
 
-  const fetchImages = async (description) => {
-    try {
-      setLoading(true);
-      const res = await fetch(`/api/gallery?description=${encodeURIComponent(description)}`);
-      const data = await res.json();
-      setImages(data);
-    } catch (err) {
-      console.error('Ошибка при загрузке изображений:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+
+  const [filteredImages, setFilteredImages] = useState([]);
 
   useEffect(() => {
-    fetchImages(selectedCategory);
-  }, [selectedCategory]);
+    const allImageModules = import.meta.glob(
+      '/src/img/gallery/**/*.{png,jpg,jpeg,svg}',
+      {
+        eager: true,
+        import: 'default',
+      }
+    );
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Удалить фото?')) return;
+    const tempArr = [];
+    let idCounter = 1;
 
-    try {
-      await fetch(`/api/gallery/${id}`, {
-        method: 'DELETE',
+    for (const filePath in allImageModules) {
+      const segments = filePath.split('/');
+      const folderName = segments[4];
+      const category = folderToCategory[folderName] || 'Без категории';
+
+      tempArr.push({
+        id: idCounter++,
+        image_url: allImageModules[filePath],
+        description: category,
       });
-      fetchImages(selectedCategory);
-    } catch (err) {
-      console.error('Ошибка удаления:', err);
     }
-  };
+
+    setImages(tempArr);
+  }, []);
+
+  useEffect(() => {
+    const filtered = images.filter(
+      (img) => img.description === selectedCategory
+    );
+    setFilteredImages(filtered);
+  }, [images, selectedCategory]);
 
   return (
     <>
       <Header />
+
       <div className="gallery-page">
         <h2 className="gallery-title">Галерея</h2>
         <p className="gallery-subtitle">Работы наших профессионалов</p>
-
-        {/* Фильтрация по категориям */}
         <div className="gallery-tabs">
           {categories.map((cat) => (
             <button
@@ -65,26 +74,21 @@ export default function Gallery() {
           ))}
         </div>
 
-        {/* Галерея */}
-        {loading ? (
-          <p>Загрузка изображений...</p>
-        ) : (
-          <div className="gallery-grid">
-            {images.map((img) => (
+        <div className="gallery-grid">
+          {filteredImages.length === 0 ? (
+            <p className="no-images">Нет фотографий в этой категории</p>
+          ) : (
+            filteredImages.map((img) => (
               <div key={img.id} className="gallery-item">
-                <img src={img.image_url} alt={`Работа: ${img.description}`} />
-                {currentUserRole === 'admin' && (
-                  <button
-                    className="delete-button"
-                    onClick={() => handleDelete(img.id)}
-                  >
-                    Удалить
-                  </button>
-                )}
+                <img
+                  src={img.image_url}
+                  alt={`Фото №${img.id}`}
+                  className="gallery-img"
+                />
               </div>
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </div>
     </>
   );

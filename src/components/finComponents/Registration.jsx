@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import Toast from "./Toast"; // путь подстрой под структуру проекта
+import Toast from "./Toast";
 import "../../styles/registration.css";
 
 export default function Register() {

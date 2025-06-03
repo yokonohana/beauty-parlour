@@ -73,8 +73,7 @@ export default function Login() {
           Забыли пароль?
         </p>
       </div>
-
-      {/* Показываем всплывающее сообщение при наличии */}
+      
       {toastMessage && (
         <Toast message={toastMessage} onClose={() => setToastMessage("")} />
       )}

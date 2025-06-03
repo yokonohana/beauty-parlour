@@ -6,6 +6,7 @@ import Gallery from './components/finComponents/Gallery.jsx';
 import Reviews from './components/finComponents/Reviews.jsx';
 import Account from './components/finComponents/Account.jsx';
 import Servicer from './components/finComponents/Servicer.jsx';
+import Promotions from './components/finComponents/Promotions.jsx';
 
 
 
@@ -19,7 +20,7 @@ export default function App() {
         <Route path="/services" element={<Servicer />} />
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/gallery" element={<Gallery />} />
-        <Route path="/promotions" element={<Home />} />
+        <Route path="/promotions" element={<Promotions />} />
         <Route path="/contacts" element={<Account />} /> 
         <Route path="/auth" element={<Auth />} />
         <Route path="/registration" element={<Registration />} />
