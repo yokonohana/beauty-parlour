@@ -1,15 +1,17 @@
 import { test, expect } from '@playwright/test';
 
-const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+const baseUrl = process.env.BASE_URL || 'beauty-parlour.onrender.com';
+
 
 test.describe('Функциональные требования', () => {
   test('Проверка входа и регистрации', async ({ page }) => {
     await page.goto(`${baseUrl}/auth`);
-    await expect(page.locator('h2')).toHaveText(/Вход в приложение/i);
+    await expect(page.locator('h2')).toHaveText(/ВХОД/i);
 
     await page.click('button:has-text("Войти")');
     await expect(page.locator('.error')).toHaveCountGreaterThan(0);
 
+    await page.goto(baseUrl);
     await page.click('button:has-text("Регистрация")');
     await expect(page).toHaveURL(/registration/);
 

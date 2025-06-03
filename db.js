@@ -4,11 +4,7 @@ import 'dotenv/config';
 const { Pool } = pg;
 
 const pool = new Pool({
-  host: 'centerbeam.proxy.rlwy.net',
-  user: 'postgres',
-  password: 'oSxDAMNNNUMuqvnuqcJXhCIQCHjMBHNe',
-  database: 'railway',
-  port: 34401,
+  connectionString: process.env.DATABASE_PUBLIC_URL
 });
 
 export default pool;
