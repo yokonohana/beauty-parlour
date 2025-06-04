@@ -7,6 +7,7 @@ import Reviews from './components/finComponents/Reviews.jsx';
 import Account from './components/finComponents/Account.jsx';
 import Servicer from './components/finComponents/Servicer.jsx';
 import Promotions from './components/finComponents/Promotions.jsx';
+import BookingPage from './components/finComponents/BookingPage.jsx';
 
 
 
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/appointments" element={<Home />} />
         <Route path="/services" element={<Servicer />} />
+        <Route path="/booking" element={<BookingPage />} /> 
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/promotions" element={<Promotions />} />

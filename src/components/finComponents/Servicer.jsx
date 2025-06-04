@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // для перехода на страницу записи
 import Header from '../header/header';
 import '../../styles/servicer.css';
 
@@ -18,6 +19,7 @@ export default function Services() {
   const [activeCategory, setActiveCategory] = useState(categories[0]);
   const [servicesData, setServicesData] = useState({});
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // хук для перехода
 
   useEffect(() => {
     fetch('/api/services')
@@ -31,6 +33,12 @@ export default function Services() {
         setLoading(false);
       });
   }, []);
+
+  // Обработчик клика по кнопке «Записаться»
+  const handleBookClick = () => {
+    // При переходе передаём выбранную категорию в query-параметр
+    navigate(`/booking?category=${encodeURIComponent(activeCategory)}`);
+  };
 
   return (
     <div className="services-page">
@@ -53,6 +61,16 @@ export default function Services() {
 
           <div className="category-description">
             {descriptions[activeCategory]}
+          </div>
+
+          {/* Кнопка «Записаться к мастеру» */}
+          <div className="book-button-wrapper">
+            <button 
+              className="book-button" 
+              onClick={handleBookClick}
+            >
+              Записаться к мастеру
+            </button>
           </div>
 
           {loading ? (

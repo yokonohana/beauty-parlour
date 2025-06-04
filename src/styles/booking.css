@@ -1,0 +1,210 @@
+.booking-widget-wrapper {
+  padding-top: 200px;
+  background: linear-gradient(to bottom, #58529C ,#F3E8DF);
+  min-height: 100vh;
+}
+
+.booking-widget {
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  border-radius: 16px;
+  background: linear-gradient(to bottom, #F3E8DF, #58529C);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08),
+              0 2px 4px rgba(0,0,0,0.04);
+  font-family: 'Arial', sans-serif;
+  color: #4a4a4a;
+}
+
+.bw-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  color: #58529C;
+}
+
+.bw-subtitle {
+  margin: 4px 0 20px;
+  font-size: 16px;
+  text-align: center;
+  color: #58529C;
+}
+
+.bw-info {
+  margin: 12px 0;
+  font-size: 14px;
+  color: #6b6b85;
+  text-align: center;
+}
+
+.bw-field {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bw-field label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #4a4a4a;
+}
+
+.bw-select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #d1d1d6;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #4a4a4a;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.bw-select:hover {
+  border-color: #a0a0a7;
+}
+
+.bw-select:focus {
+  border-color: #58529C;
+}
+
+.bw-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bw-calendar {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.bw-month-header {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 500;
+  color: #58529C;
+  margin-bottom: 12px;
+}
+
+.bw-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 8px;
+}
+
+.bw-weekday-cell {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: #58529C;
+}
+
+.bw-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 40px;
+  gap: 4px;
+}
+
+.bw-day-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #4a4a4a;
+  cursor: default;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  transition: background-color 0.2s, color 0.2s;
+  padding: 0;
+}
+
+.bw-day-empty {
+  background: transparent;
+}
+
+.bw-day-available {
+  cursor: pointer;
+  background-color: #58529C;
+  color: #ffffff;
+}
+
+.bw-day-available:hover {
+  background-color: #4f4a82;
+}
+
+.bw-day-selected {
+  background-color: #3f3a6a;
+  color: #ffffff;
+}
+
+.bw-dropdowns {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.bw-button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #58529C;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.1s;
+}
+
+.bw-button:hover {
+  background-color: #4f4a82;
+}
+
+.bw-button:active {
+  transform: scale(0.98);
+}
+
+@media screen and (max-width: 420px) {
+  .booking-widget {
+    margin: 0 12px;
+    padding: 18px 16px;
+  }
+  .bw-title {
+    font-size: 22px;
+  }
+  .bw-subtitle {
+    font-size: 14px;
+  }
+  .bw-info {
+    font-size: 13px;
+  }
+  .bw-month-header {
+    font-size: 18px;
+  }
+  .bw-weekday-cell,
+  .bw-day-cell {
+    font-size: 14px;
+  }
+  .bw-days-grid {
+    grid-auto-rows: 36px;
+    gap: 3px;
+  }
+  .bw-select {
+    font-size: 15px;
+    padding: 8px 10px;
+  }
+  .bw-button {
+    font-size: 15px;
+    padding: 10px 0;
+  }
+}
