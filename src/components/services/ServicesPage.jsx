@@ -31,9 +31,9 @@ const services = [
 const ServicesPage = () => {
   return (
     <div className="services-page">
-      <h1 className="services-header">Цена на наши УСЛУГИ</h1>
+      <h1 className="services-header">НАШИ УСЛУГИ</h1>
       <p className="services-subheader">
-        всё, что мы предлагаем, и наши расценки
+        Профессионально и безупречно.
       </p>
 
       <div className="services-list">
@@ -50,7 +50,6 @@ const ServicesPage = () => {
             <div className="service-text">
               <h2 className="service-title">{service.title}</h2>
               <p className="service-description">{service.description}</p>
-              <button className="service-button">Подробнее</button>
             </div>
           </div>
         ))}
