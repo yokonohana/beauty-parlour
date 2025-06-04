@@ -17,7 +17,7 @@ export default function ReviewsPage() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/reviews?status=approved');
+        const res = await fetch('https://beauty-parlour.onrender.com/api/reviews?status=approved');
         if (!res.ok) throw new Error(`Сервер вернул ошибку ${res.status}`);
 
         const data = await res.json();
@@ -64,7 +64,7 @@ export default function ReviewsPage() {
     }
 
     try {
-      const res = await fetch('http://localhost:3000/api/reviews', {
+      const res = await fetch('https://beauty-parlour.onrender.com/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

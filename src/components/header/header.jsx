@@ -16,7 +16,9 @@ function Header() {
                 <li><Link to="/reviews" className="nav-link">Отзывы</Link></li>
                 <li><Link to="/gallery" className="nav-link">Галерея</Link></li>
                 <li className="logo">
-                  <img src={logo} alt="Logo" />
+                  <Link to="/home" className="nav-link">
+                    <img src={logo} alt="Logo" />
+                  </Link>
                 </li>
                 <li><Link to="/contacts" className="nav-link">Контакты</Link></li>
                 <li className="auth-buttons">
