@@ -46,7 +46,7 @@ export default function ContactInfo() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://beauty-parlour.onrender.com/api/contacts', {
+      const res = await fetch('https://beauty-parlour.onrender.com/api/contacts', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
