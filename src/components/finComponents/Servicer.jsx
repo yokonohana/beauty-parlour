@@ -37,7 +37,7 @@ export default function Services() {
   // Обработчик клика по кнопке «Записаться»
   const handleBookClick = () => {
     // При переходе передаём выбранную категорию в query-параметр
-    navigate(`/booking?category=${encodeURIComponent(activeCategory)}`);
+    navigate(`/booking`);
   };
 
   return (

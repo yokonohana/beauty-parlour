@@ -74,3 +74,30 @@
   .register-button:hover {
     background: #58529c;
   }
+ 
+.user-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8e79dc, #6e5fab);
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  transition: transform 0.2s ease;
+}
+
+.user-circle:hover {
+  transform: scale(1.05);
+}

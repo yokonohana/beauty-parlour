@@ -1,13 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
 .contact-page {
   background: linear-gradient(to bottom, #f4eefb, #cabbe9);
   min-height: 100vh;
-  font-family: 'Montserrat', sans-serif;
+  padding: 180px 120px 140px; /* Увеличен отступ сверху */
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 40px 20px;
+  align-items: flex-start;
+  gap: 40px;
+  flex-wrap: wrap;
 }
 
 .contact-form {
@@ -15,9 +21,10 @@
   padding: 30px 25px;
   border-radius: 20px;
   width: 100%;
-  max-width: 480px;
+  max-width: 460px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   color: white;
+  flex-shrink: 0;
 }
 
 .contact-title {
@@ -26,31 +33,6 @@
   font-weight: 600;
   text-align: center;
 }
-
-.password-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.password-wrapper input.contact-input {
-  width: 100%;
-  padding-right: 40px;
-}
-
-.toggle-password {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #333;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-
 
 .contact-input {
   width: 100%;
@@ -68,8 +50,28 @@
   color: #aaa;
 }
 
+.password-wrapper {
+  position: relative;
+}
+
+.password-input {
+  padding-right: 40px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 20px;
+  cursor: pointer;
+}
+
 .contact-button {
-  background: white;
+  background: #fff;
   color: #6e5fab;
   border: none;
   padding: 10px 20px;
@@ -83,4 +85,122 @@
 
 .contact-button:hover {
   background: #ddd1ff;
+}
+
+/* ==== Appointments section ==== */
+
+.appointments-wrapper {
+  max-width: 600px;
+  flex: 1;
+}
+
+.appointments-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #58529c;
+  text-align: center;
+}
+
+.appointments-list-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.appointment-pill {
+  background: white;
+  border-radius: 20px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.2s;
+}
+
+.appointment-pill:hover {
+  background-color: #f1f1f1;
+}
+
+.cancel-btn {
+  background: none;
+  border: none;
+  color: #c0392b;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.cancel-btn:hover {
+  color: #a00;
+}
+
+.no-appointments {
+  font-size: 14px;
+  color: #666;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.appointments-container {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.appointment-card {
+  background-color: #6e5fab;
+  color: white;
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  position: relative;
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.appointment-date {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.appointment-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+.appointment-master,
+.appointment-service,
+.appointment-price {
+  margin-right: 12px;
+}
+
+.cancel-button {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+.cancel-button:hover {
+  transform: scale(1.2);
 }

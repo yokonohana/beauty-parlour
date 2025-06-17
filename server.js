@@ -6,469 +6,304 @@ import path from 'path';
 import bcrypt from 'bcrypt';
 import fs from 'fs';
 import cors from 'cors';
-import twilio from 'twilio';
-
-process.env.DATABASE_PUBLIC_URL = process.env.DATABASE_PUBLIC_URL || "postgres://myuser:mypassword@myhost:5432/mydatabase?sslmode=require";
-
 import db from './db.js';
 import uploadRoute from './uploadRoute.js';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname  = path.dirname(__filename);
-
-const twilioClient = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+const __dirname = path.dirname(__filename);
 
 const startServer = async () => {
   const app = express();
-  app.use(cors());
+  app.use(cors({ origin: ['http://localhost:3000'], credentials: true }));
   app.use(express.json());
 
-  // === Обработка /uploads (PNG, JPG и пр.) ===
   const uploadsDir = path.join(__dirname, 'uploads');
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir);
-  }
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
   app.use('/uploads', express.static(uploadsDir));
 
-  // =========================
-  // ===      API ROUTES   ==
-  // =========================
-
-  // ————— Регистрация нового пользователя —————
+  // Регистрация
   app.post('/api/auth/register', async (req, res) => {
     const { email, password, name, last_name, phone } = req.body;
-    if (!email || !password || !name || !last_name || !phone) {
+    if (!email || !password || !name || !last_name || !phone)
       return res.status(400).json({ error: 'Все поля обязательны' });
-    }
 
     try {
-      // Проверяем, нет ли уже пользователя с таким email
-      const existingUser = await db.query(
-        'SELECT id FROM users WHERE email = $1',
-        [email]
-      );
-      if (existingUser.rows.length > 0) {
+      const existing = await db.query('SELECT id FROM users WHERE email = $1', [email]);
+      if (existing.rows.length)
         return res.status(400).json({ error: 'Email уже зарегистрирован' });
-      }
 
-      // Хэшируем пароль и сохраняем пользователя
       const passwordHash = await bcrypt.hash(password, 10);
       const result = await db.query(
-        `
-          INSERT INTO users (name, last_name, email, password_hash, phone)
-          VALUES ($1, $2, $3, $4, $5)
-          RETURNING id
-        `,
+        `INSERT INTO users (name, last_name, email, password_hash, phone)
+         VALUES ($1, $2, $3, $4, $5) RETURNING id`,
         [name, last_name, email, passwordHash, phone]
       );
 
-      res.status(201).json({
-        message: 'Регистрация успешна',
-        userId: result.rows[0].id
-      });
+      res.status(201).json({ message: 'Регистрация успешна', userId: result.rows[0].id });
     } catch (err) {
-      console.error('Ошибка при регистрации:', err);
-      res.status(500).json({ error: 'Ошибка сервера при регистрации' });
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка сервера' });
     }
   });
 
-  // ————— Вход пользователя —————
+  // Авторизация
   app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
-    if (!email || !password) {
+    if (!email || !password)
       return res.status(400).json({ error: 'Email и пароль обязательны' });
-    }
 
     try {
       const result = await db.query(
-        'SELECT id, password_hash FROM users WHERE email = $1',
+        'SELECT id, name, last_name, password_hash FROM users WHERE email = $1',
         [email]
       );
-      if (result.rows.length === 0) {
+
+      if (!result.rows.length)
         return res.status(401).json({ error: 'Пользователь не найден' });
-      }
 
       const user = result.rows[0];
       const isMatch = await bcrypt.compare(password, user.password_hash);
-      if (!isMatch) {
+      if (!isMatch)
         return res.status(401).json({ error: 'Неверный пароль' });
-      }
 
-      res.status(200).json({ message: 'Успешный вход', userId: user.id });
+      res.status(200).json({
+        message: 'Успешный вход',
+        userId: user.id,
+        name: user.name,
+        last_name: user.last_name
+      });
     } catch (err) {
-      console.error('Ошибка при входе:', err);
-      res.status(500).json({ error: 'Ошибка сервера при входе' });
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка сервера' });
     }
   });
 
-  // ————— Получение контактной информации —————
-  app.get('/api/contacts', async (req, res) => {
-    try {
-      const result = await db.query(`
-        SELECT address, phone, working_hours
-        FROM contact_info
-        ORDER BY id
-        LIMIT 1
-      `);
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Контактная информация не найдена' });
-      }
-      res.status(200).json(result.rows[0]);
-    } catch (err) {
-      console.error('Ошибка при получении контактной информации:', err);
-      res.status(500).json({ error: 'Ошибка сервера при получении контактов' });
-    }
-  });
-
-  // ————— Обновление контактной информации пользователя —————
-  app.put('/api/contacts', async (req, res) => {
-    const userId = 1; // фиксируем пользователя с id=1
-    const { name, last_name, email, phone, password } = req.body;
-
-    try {
-      const updateFields = [];
-      const values = [];
-      let index = 1;
-
-      if (name) {
-        updateFields.push(`name = $${index++}`);
-        values.push(name);
-      }
-      if (last_name) {
-        updateFields.push(`last_name = $${index++}`);
-        values.push(last_name);
-      }
-      if (email) {
-        updateFields.push(`email = $${index++}`);
-        values.push(email);
-      }
-      if (phone) {
-        updateFields.push(`phone = $${index++}`);
-        values.push(phone);
-      }
-      if (password) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        updateFields.push(`password_hash = $${index++}`);
-        values.push(hashedPassword);
-      }
-
-      if (updateFields.length === 0) {
-        return res.status(400).json({ error: 'Нет данных для обновления' });
-      }
-
-      values.push(userId);
-      const query = `UPDATE users SET ${updateFields.join(', ')} WHERE id = $${index}`;
-      await db.query(query, values);
-
-      res.status(200).json({ message: 'Данные успешно обновлены' });
-    } catch (err) {
-      console.error('Ошибка при обновлении данных:', err);
-      res.status(500).json({ error: 'Ошибка сервера при обновлении данных' });
-    }
-  });
-
-  // ————— Добавление нового отзыва —————
-  app.post('/api/reviews', async (req, res) => {
-    const { name, rating, comment } = req.body;
-    if (!name || !rating || !comment) {
-      return res.status(400).json({ error: 'Все поля обязательны' });
-    }
-    try {
-      await db.query(
-        `
-          INSERT INTO reviews (name, rating, comment, status, created_at)
-          VALUES ($1, $2, $3, 'approved', NOW())
-        `,
-        [name, rating, comment]
-      );
-      res.status(201).json({ message: 'Отзыв успешно добавлен' });
-    } catch (err) {
-      console.error('Ошибка при сохранении отзыва:', err);
-      res.status(500).json({ error: 'Ошибка сервера при сохранении отзыва' });
-    }
-  });
-
-  // ————— Получение 10 случайных «approved» отзывов —————
-  app.get('/api/reviews', async (req, res) => {
-    try {
-      const result = await db.query(`
-        SELECT id, name, rating, comment, created_at
-        FROM reviews
-        WHERE status = 'approved'
-        ORDER BY RANDOM()
-        LIMIT 10
-      `);
-      res.json(result.rows);
-    } catch (err) {
-      console.error('Ошибка при получении отзывов:', err);
-      res.status(500).json({ error: 'Ошибка сервера при получении отзывов' });
-    }
-  });
-
-  // ————— Получение списка услуг, сгруппированных по subcategory —————
-  app.get('/api/services', async (req, res) => {
+  // Услуги
+  app.get('/api/services', async (_, res) => {
     try {
       const result = await db.query(`
         SELECT id, name, description, price, category, subcategory
-        FROM services
-        ORDER BY category, subcategory, name
+        FROM services ORDER BY category, subcategory, name
       `);
 
       const grouped = {};
       result.rows.forEach(service => {
-        const sub = service.subcategory;
-        if (!grouped[sub]) {
-          grouped[sub] = [];
-        }
-        grouped[sub].push({
-          id: service.id,
-          name: service.name,
-          description: service.description,
-          price: service.price
-        });
+        if (!grouped[service.subcategory]) grouped[service.subcategory] = [];
+        grouped[service.subcategory].push(service);
       });
 
       res.json(grouped);
     } catch (err) {
-      console.error('Ошибка при получении и группировке услуг:', err);
-      res.status(500).json({ error: 'Ошибка сервера при получении услуг' });
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка получения услуг' });
     }
   });
 
-  // ————— Получение списка мастеров по категории —————
-  // GET /api/masters?category=<категория>
+  // Мастера
   app.get('/api/masters', async (req, res) => {
+    const { category } = req.query;
+    if (!category)
+      return res.status(400).json({ error: 'category обязателен' });
+
     try {
-      const { category } = req.query;
-      if (!category) {
-        return res.status(400).json({ error: 'Параметр category обязателен' });
-      }
       const result = await db.query(
         'SELECT id, name FROM masters WHERE specialization = $1 ORDER BY name',
         [category]
       );
-      // Вернём массив формата [{ id, name }, ...]
       res.json(result.rows);
     } catch (err) {
-      console.error('Ошибка при получении мастеров:', err);
-      res.status(500).json({ error: 'Ошибка сервера при получении мастеров' });
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка получения мастеров' });
     }
   });
 
-  // ————— Получение доступных слотов (availability) по мастеру и месяцу —————
-  // GET /api/availability?masterId=<id>&year=<YYYY>&month=<MM>
+  // Свободные слоты
   app.get('/api/availability', async (req, res) => {
+    const { masterId, year, month } = req.query;
+    if (!masterId || !year || !month)
+      return res.status(400).json({ error: 'masterId, year и month обязательны' });
+
     try {
-      const { masterId, year, month } = req.query;
-      if (!masterId || !year || !month) {
-        return res
-          .status(400)
-          .json({ error: 'Параметры masterId, year и month обязательны' });
-      }
+      const startDate = new Date(`${year}-${month.padStart(2, '0')}-01`);
+      const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
 
-      // Приводим year, month к числам
-      const y = parseInt(year, 10);
-      const m = parseInt(month, 10); // 1..12
-
-      // 1) Запросим расписание мастера (master_schedule)
-      const scheduleRes = await db.query(
-        `
-          SELECT day_of_week, start_time, end_time
-          FROM master_schedule
-          WHERE master_id = $1
-        `,
+      const schedule = await db.query(
+        'SELECT day_of_week, start_time, end_time FROM master_schedule WHERE master_id = $1',
         [masterId]
       );
-      const scheduleRows = scheduleRes.rows;
 
-      // 2) Собираем мап day_of_week → { start_time, end_time }
-      const workMap = {};
-      scheduleRows.forEach(({ day_of_week, start_time, end_time }) => {
-        workMap[day_of_week] = {
-          start_time: start_time.slice(0, 5),
-          end_time: end_time.slice(0, 5)
-        };
+      const scheduleMap = {};
+      schedule.rows.forEach(row => {
+        scheduleMap[row.day_of_week] = [row.start_time, row.end_time];
       });
 
-      // 3) Выясняем число дней в месяце y-m
-      const daysInMonth = new Date(y, m, 0).getDate();
+      const appointments = await db.query(
+        'SELECT appointment_data FROM appointments WHERE master_id = $1 AND appointment_data BETWEEN $2 AND $3',
+        [masterId, startDate.toISOString(), endDate.toISOString()]
+      );
 
-      // 4) Пробегаем по каждому дню месяца и собираем FREE слоты
-      const availabilityMap = {};
+      const takenSlots = new Set(appointments.rows.map(r => new Date(r.appointment_data).toISOString()));
+      const result = {};
+      const days = [];
 
-      const dowMap = {
-        1: 'monday',
-        2: 'tuesday',
-        3: 'wednesday',
-        4: 'thursday',
-        5: 'friday',
-        6: 'saturday',
-        0: 'sunday'
-      };
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        days.push(new Date(d));
+      }
 
-      for (let d = 1; d <= daysInMonth; d++) {
-        const curDate = new Date(y, m - 1, d);
-        const weekdayJS = curDate.getDay(); // 0=Вс,1=Пн,...6=Сб
-        const dow = dowMap[weekdayJS];
-        if (!workMap[dow]) continue; // Мастер не работает в этот день
+      for (const date of days) {
+        const weekday = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        if (!scheduleMap[weekday]) continue;
 
-        // Формируем dateKey = "YYYY-MM-DD"
-        const dd = String(d).padStart(2, '0');
-        const mm = String(m).padStart(2, '0');
-        const dateKey = `${y}-${mm}-${dd}`;
+        const [start, end] = scheduleMap[weekday];
+        const startTime = new Date(`${date.toISOString().split('T')[0]}T${start}`);
+        const endTime = new Date(`${date.toISOString().split('T')[0]}T${end}`);
+        const times = [];
 
-        // 5) Выбираем уже занятые слоты у мастера на эту дату
-        const apptRes = await db.query(
-          `
-            SELECT DATE_TRUNC('minute', appointment_data) AS slot_time
-            FROM appointments
-            WHERE master_id = $1
-              AND DATE_TRUNC('day', appointment_data) = $2::date
-          `,
-          [masterId, dateKey]
-        );
-        const busySlots = new Set(
-          apptRes.rows.map(r => {
-            const dt = new Date(r.slot_time);
-            const hh = String(dt.getHours()).padStart(2, '0');
-            const mm2 = String(dt.getMinutes()).padStart(2, '0');
-            return `${hh}:${mm2}`;
-          })
-        );
-
-        // 6) Генерируем 30-минутные интервалы от start_time до end_time
-        const { start_time, end_time } = workMap[dow];
-        const [startH, startM] = start_time.split(':').map(Number);
-        const [endH,   endM]   = end_time.split(':').map(Number);
-
-        let currentMinutes = startH * 60 + startM;
-        const endMinutes   = endH * 60 + endM;
-        const freeSlots    = [];
-
-        while (currentMinutes + 30 <= endMinutes) {
-          const hh = String(Math.floor(currentMinutes / 60)).padStart(2, '0');
-          const mm2 = String(currentMinutes % 60).padStart(2, '0');
-          const slot = `${hh}:${mm2}`;
-          if (!busySlots.has(slot)) {
-            freeSlots.push(slot);
-          }
-          currentMinutes += 30;
+        for (let t = new Date(startTime); t < endTime; t.setMinutes(t.getMinutes() + 30)) {
+          const iso = t.toISOString();
+          if (!takenSlots.has(iso)) times.push(t.toTimeString().slice(0, 5));
         }
 
-        if (freeSlots.length > 0) {
-          availabilityMap[dateKey] = freeSlots;
+        if (times.length > 0) {
+          result[date.toISOString().split('T')[0]] = times;
         }
       }
 
-      res.json(availabilityMap);
+      res.json(result);
     } catch (err) {
-      console.error('Ошибка при получении доступности:', err);
-      res.status(500).json({ error: 'Серверная ошибка при получении доступности' });
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка при расчёте слотов' });
     }
   });
 
-  // ————— Создание записи на приём —————
-  // POST /api/appointments
-  // Ожидаем JSON: { userId, masterId, date: "YYYY-MM-DD", time: "HH:MM" }
+  // Запись на прием
   app.post('/api/appointments', async (req, res) => {
+    const { userId, masterId, serviceId, date, time } = req.body;
+    if (!userId || !masterId || !serviceId || !date || !time)
+      return res.status(400).json({ error: 'Все поля обязательны' });
+
     try {
-      const { userId, masterId, date, time } = req.body;
-      if (!userId || !masterId || !date || !time) {
-        return res.status(400).json({ error: 'userId, masterId, date и time обязательны' });
-      }
+      const appointmentDate = new Date(`${date}T${time}:00`);
+      await db.query(`
+        INSERT INTO appointments (user_id, service_id, master_id, appointment_data, status, created_at)
+        VALUES ($1, $2, $3, $4, 'pending', NOW())
+      `, [userId, serviceId, masterId, appointmentDate]);
 
-      // 1) Собираем appointment_data из date + time (формат ISO)
-      const appointmentDateTime = new Date(`${date}T${time}:00`);
+      res.status(201).json({ message: 'Запись создана' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка сервера при записи' });
+    }
+  });
 
-      // 2) Вставляем запись в таблицу appointments
-      await db.query(
-        `
-          INSERT INTO appointments (user_id, service_id, master_id, appointment_data, status, created_at)
-          VALUES ($1, NULL, $2, $3, 'pending', NOW())
-        `,
-        [userId, masterId, appointmentDateTime]
+  // Отмена записи
+  app.delete('/api/appointments/:id', async (req, res) => {
+    const userId = req.headers['x-user-id'];
+    const { id } = req.params;
+    if (!userId) return res.status(401).json({ error: 'Нет userId' });
+
+    try {
+      const result = await db.query(
+        'DELETE FROM appointments WHERE id = $1 AND user_id = $2 RETURNING *',
+        [id, userId]
       );
 
-      // 3) Достаём номер телефона пользователя
-      const userRes = await db.query(
-        'SELECT phone FROM users WHERE id = $1',
+      if (result.rowCount === 0)
+        return res.status(404).json({ error: 'Запись не найдена' });
+
+      res.status(200).json({ message: 'Запись отменена' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка при отмене записи' });
+    }
+  });
+
+  // Контактные данные
+  app.get('/api/contacts', async (req, res) => {
+    const userId = req.headers['x-user-id'];
+    if (!userId) return res.status(401).json({ error: 'Нет userId' });
+
+    try {
+      const result = await db.query(
+        'SELECT name, last_name, email, phone FROM users WHERE id = $1',
         [userId]
       );
-      if (userRes.rows.length === 0) {
-        // Если пользователя нет, возвращаем ошибку, но всё равно уже вставили запись
-        return res.status(404).json({ error: 'Пользователь не найден для отправки SMS' });
-      }
-
-      const userPhone = userRes.rows[0].phone;
-      if (!userPhone) {
-        return res.status(400).json({ error: 'У пользователя не указан номер телефона' });
-      }
-
-      // 4) Отправляем SMS-уведомление через Twilio
-      const messageBody = `Ваша запись подтверждена: мастер ${masterId}, дата ${date}, время ${time}.`;
-      await twilioClient.messages.create({
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: userPhone,
-        body: messageBody
-      });
-
-      return res.status(201).json({ message: 'Запись создана, SMS отправлено' });
+      if (!result.rows.length) return res.status(404).json({ error: 'Пользователь не найден' });
+      res.json(result.rows[0]);
     } catch (err) {
-      console.error('Ошибка при создании записи:', err);
-      return res.status(500).json({ error: 'Серверная ошибка при создании записи' });
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка при получении данных' });
     }
   });
 
-  // ————— Маршрут для загрузки изображений —————
+  app.put('/api/contacts', async (req, res) => {
+    const userId = req.headers['x-user-id'];
+    const { name, last_name, email, phone, password } = req.body;
+    if (!userId) return res.status(401).json({ error: 'Нет userId' });
+
+    try {
+      if (password) {
+        const hash = await bcrypt.hash(password, 10);
+        await db.query(`
+          UPDATE users SET name=$1, last_name=$2, email=$3, phone=$4, password_hash=$5 WHERE id=$6
+        `, [name, last_name, email, phone, hash, userId]);
+      } else {
+        await db.query(`
+          UPDATE users SET name=$1, last_name=$2, email=$3, phone=$4 WHERE id=$5
+        `, [name, last_name, email, phone, userId]);
+      }
+
+      res.status(200).json({ message: 'Контактные данные обновлены' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка обновления данных' });
+    }
+  });
+
+  // Записи пользователя
+  app.get('/api/user/appointments', async (req, res) => {
+    const userId = req.headers['x-user-id'];
+    if (!userId) return res.status(401).json({ error: 'Нет userId' });
+
+    try {
+      const now = new Date();
+      const result = await db.query(`
+        SELECT a.id, a.appointment_data, s.name AS service_name, s.price, m.name AS master_name
+        FROM appointments a
+        JOIN services s ON a.service_id = s.id
+        JOIN masters m ON a.master_id = m.id
+        WHERE a.user_id = $1 AND a.appointment_data >= $2
+        ORDER BY a.appointment_data
+      `, [userId, now.toISOString()]);
+
+      res.json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Ошибка при получении записей' });
+    }
+  });
+
   app.use('/api', uploadRoute);
 
-  // =========================
-  // ===   VITE MIDDLEWARE  ==
-  // =========================
-  const vite = await createViteServer({
-    root: __dirname,
-    server: { middlewareMode: true },
-  });
+  const vite = await createViteServer({ root: __dirname, server: { middlewareMode: true } });
   app.use(vite.middlewares);
 
-  // =========================
-  // ===   SPA FALLBACK     ==
-  // =========================
   app.use('*', async (req, res) => {
     try {
-      const url = req.originalUrl;
-      const template = await vite.transformIndexHtml(
-        url,
-        `<!DOCTYPE html>
-        <html lang="ru">
-          <head>
-            <meta charset="UTF-8" />
-            <title>BLISS</title>
-          </head>
-          <body>
-            <div id="root"></div>
-          </body>
-        </html>`
-      );
-      res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+      const html = await vite.transformIndexHtml(req.originalUrl, `
+        <!DOCTYPE html>
+        <html lang="ru"><head><meta charset="UTF-8" /><title>BLISS</title></head><body><div id="root"></div></body></html>
+      `);
+      res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
     } catch (e) {
       vite.ssrFixStacktrace(e);
-      console.error('Ошибка Vite middleware:', e);
+      console.error('Ошибка шаблона:', e);
       res.status(500).end(e.message);
     }
   });
 
-  // =========================
-  // ===  START SERVER     ==
-  // =========================
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`✅ Сервер запущен: http://localhost:${PORT}`);
-  });
+  app.listen(PORT, () => console.log(`✅ Сервер запущен: http://localhost:${PORT}`));
 };
 
 startServer();

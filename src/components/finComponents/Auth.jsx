@@ -28,19 +28,22 @@ export default function Login() {
       });
 
       if (!response.ok) {
-        const text = await response.text();
-        let resData;
-        try {
-          resData = JSON.parse(text);
-        } catch {
-          throw new Error("Ошибка входа: пустой или невалидный JSON-ответ");
-        }
+        const resData = await response.json();
         throw new Error(resData.error || "Ошибка входа");
       }
 
+      const resData = await response.json();
+
+      // Сохраняем данные пользователя
+      localStorage.setItem("userId", resData.userId);
+      localStorage.setItem("userName", resData.name || "Клиент");
+      localStorage.setItem("userLastName", resData.last_name || "");
+
       setToastMessage("Вход выполнен успешно!");
+
       setTimeout(() => {
-        navigate("/Home");
+        setToastMessage("");
+        navigate("/home");
       }, 1500);
     } catch (err) {
       console.error(err);
@@ -73,7 +76,7 @@ export default function Login() {
           Забыли пароль?
         </p>
       </div>
-      
+
       {toastMessage && (
         <Toast message={toastMessage} onClose={() => setToastMessage("")} />
       )}
